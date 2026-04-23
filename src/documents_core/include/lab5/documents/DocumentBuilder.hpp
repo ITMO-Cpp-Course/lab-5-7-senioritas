@@ -1,14 +1,17 @@
 #pragma once
-#include <cstddef>
-#include <map>
-#include <memory>
-#include <stdexcept>
+#include "Document.hpp"
 #include <string>
-#include <unordered_map>
-#include <utility>
 #include <vector>
-//or your includes that neccessary
-namespace lab5::documents
-{
 
-}
+class DocumentBuilder {
+public:
+    // Создает объект Document, приводя текст к нижнему регистру
+    static Document Build(size_t id, std::string name, std::string content);
+
+    // Разбивает текст на слова, убирая знаки препинания
+    static std::vector<std::string> Tokenize(const std::string& text);
+
+private:
+    // Вспомогательная функция для очистки слова
+    static std::string Normalize(std::string word);
+};
