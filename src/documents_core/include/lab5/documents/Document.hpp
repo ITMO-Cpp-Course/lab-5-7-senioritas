@@ -1,18 +1,20 @@
 #pragma once
 #include <string>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
 using DocId = size_t;
 
-struct Document {
+struct Document
+{
     DocId id;
     std::string name;
     std::string content;
 };
 
-class DocumentStorage {
-public:
+class DocumentStorage
+{
+  public:
     // Добавляет документ в хранилище, забирая владение строками (std::move)
     void Save(Document&& doc);
 
@@ -21,6 +23,6 @@ public:
 
     void Remove(DocId id);
 
-private:
+  private:
     std::unordered_map<DocId, Document> data_;
 };
