@@ -17,4 +17,4 @@ class DocumentBuilder
     // Вспомогательная функция для очистки слова
     static std::string Normalize(std::string word);
 };
-}
+} // namespace lab5::documents

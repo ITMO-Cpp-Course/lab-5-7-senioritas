@@ -4,10 +4,6 @@ namespace lab5::documents
 {
 Document DocumentBuilder::Build(size_t id, const std::string& name, std::string content)
 {
-    for (char& c : content)
-    {
-        c = static_cast<char>(std::tolower(c));
-    }
     Document doc;
     doc.id = id;
     doc.name = name;
@@ -47,4 +43,4 @@ std::string DocumentBuilder::Normalize(std::string word)
     }
     return word;
 }
-};
+}; // namespace lab5::documents
