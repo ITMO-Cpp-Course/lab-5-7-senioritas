@@ -2,7 +2,9 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-
+#include <cstddef>
+namespace lab5::documents
+{
 using DocId = size_t;
 
 struct Document
@@ -26,3 +28,4 @@ class DocumentStorage
   private:
     std::unordered_map<DocId, Document> data_;
 };
+}

@@ -2,7 +2,9 @@
 #include "Document.hpp"
 #include <string>
 #include <vector>
-
+#include <cstddef>
+namespace lab5::documents
+{
 class DocumentBuilder
 {
   public:
@@ -16,3 +18,4 @@ class DocumentBuilder
     // Вспомогательная функция для очистки слова
     static std::string Normalize(std::string word);
 };
+}

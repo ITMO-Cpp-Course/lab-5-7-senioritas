@@ -1,6 +1,8 @@
 #include "lab5/documents/Document.hpp"
 #include <stdexcept>
 #include <string>
+namespace lab5::documents
+{
 
 void DocumentStorage::Save(Document&& doc)
 {
@@ -24,3 +26,5 @@ void DocumentStorage::Remove(DocId id)
     // Удаление из unordered_map по ключу
     data_.erase(id);
 }
+
+};
