@@ -25,5 +25,20 @@ void InvertedIndex::RemoveDocument(size_t doc_id){
 		}
 	}
 }
+pair<std::map<size_t, size_t>,size_t> GetResultsForWord (std::string word){
+	size_t cnt=0;
+	for (auto i:index_[word]){
+		cnt+=i.second();
+	}
+	return {index_[word],cnt};
+}
+    
+std::vector<size_t> GetListOfDocementsForWord (std::string word){
+	std::vector<size_t> v;
+	for (auto i:index_[word]){
+		v.push_back(i.first);
+	}
+	return v;
+}
 
 };
