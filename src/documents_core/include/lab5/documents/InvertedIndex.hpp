@@ -15,7 +15,7 @@ public:
     // Удаляет упоминания документа из всех индексов
     void RemoveDocument(size_t doc_id);
     
-    pair<std::map<size_t, size_t>,size_t> GetResultsForWord (std::string word);
+    std::pair<std::map<size_t, size_t>,size_t> GetResultsForWord (std::string word);
     
     std::vector<size_t> GetListOfDocementsForWord (std::string word);
 
