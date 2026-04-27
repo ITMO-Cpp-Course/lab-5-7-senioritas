@@ -13,7 +13,6 @@ class DocumentBuilder
     // Разбивает текст на слова, убирая знаки препинания
     static std::vector<std::string> Tokenize(const std::string& text);
 
-  private:
     // Вспомогательная функция для очистки слова
     static std::string Normalize(std::string word);
 };
