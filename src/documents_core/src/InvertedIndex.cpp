@@ -9,8 +9,10 @@
 
 namespace lab5::documents
 {
+
 void InvertedIndex::AddDocument(size_t doc_id, const std::vector<std::string>& words)
 {
+    RemoveDocument(doc_id);
     std::map<std::string, size_t> words_counter;
     for (auto w : words)
     {
@@ -18,10 +20,7 @@ void InvertedIndex::AddDocument(size_t doc_id, const std::vector<std::string>& w
     }
     for (auto w : words_counter)
     {
-        if (!index_[w.first].count(doc_id))
-        {
-            index_[w.first][doc_id] = w.second;
-        }
+        index_[w.first][doc_id] = w.second;
     }
 }
 void InvertedIndex::RemoveDocument(size_t doc_id)
