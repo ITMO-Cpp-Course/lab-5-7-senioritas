@@ -18,13 +18,9 @@ void InvertedIndex::AddDocument(size_t doc_id, const std::vector<std::string>& w
     }
     for (auto w : words_counter)
     {
-        if (index_[w.first].find(doc_id) != index_[w.first].end())
+        if (!index_[w.first].at(doc_id))
         {
             index_[w.first][doc_id] = w.second;
-        }
-        else
-        {
-            cout << "This document already exists" << endl;
         }
     }
 }
@@ -33,7 +29,7 @@ void InvertedIndex::RemoveDocument(size_t doc_id)
     for (auto& i : index_)
     {
         i.second.erase(doc_id);
-        if (i.second = std::map<size_t, size_t>{})
+        if (i.second.empty())
         {
             index_.erase(i.first);
         }
@@ -42,29 +38,29 @@ void InvertedIndex::RemoveDocument(size_t doc_id)
 std::pair<std::map<size_t, size_t>, size_t> InvertedIndex::GetResultsForWord(const std::string& word) const
 {
     size_t cnt = 0;
-    if (index_.find(word) == index_.end())
+    auto it = index_.find(word);
+    if (it == index_.end())
     {
-        cout << "There is not this word" << endl;
-        return std::pair<std::map<size_t, size_t>, size_t>{{}, 0};
+        return {std::map<size_t, size_t>{}, 0};
     }
-    for (auto i : index_[word])
+    for (auto [id, c] : it->second)
     {
-        cnt += i.second;
+        cnt += c;
     }
-    return {index_[word], cnt};
+    return {it->second, cnt};
 }
 
 std::vector<size_t> InvertedIndex::GetListOfDocumentsForWord(const std::string& word) const
 {
-    if (index_.find(word) == index_.end())
+    std::vector<size_t> v;
+    auto it = index_.find(word);
+    if (it == index_.end())
     {
-        cout << "There is not this word" << endl;
         return std::vector<size_t>{};
     }
-    std::vector<size_t> v;
-    for (auto i : index_[word])
+    for (auto [id, c] : it->second)
     {
-        v.push_back(i.first);
+        v.push_back(id);
     }
     return v;
 }
