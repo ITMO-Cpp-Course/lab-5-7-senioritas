@@ -25,12 +25,16 @@ void InvertedIndex::AddDocument(size_t doc_id, const std::vector<std::string>& w
 }
 void InvertedIndex::RemoveDocument(size_t doc_id)
 {
-    for (auto& i : index_)
+    for (auto it = index_.begin(); it != index_.end();)
     {
-        i.second.erase(doc_id);
-        if (i.second.empty())
+        it->second.erase(doc_id);
+        if (it->second.empty())
         {
-            index_.erase(i.first);
+            it = index_.erase(it);
+        }
+        else
+        {
+            ++it;
         }
     }
 }
