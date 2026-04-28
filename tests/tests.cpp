@@ -30,21 +30,25 @@ TEST_CASE("Test InvertedIndex")
 
     REQUIRE(Index.GetResultsForWord("apple").second == 5);
     REQUIRE(Index.GetResultsForWord("apple").first == std::map<size_t, size_t>{{1, 2}, {2, 2}, {3, 1}});
-    REQUIRE(Index.GetListOfDocementsForWord("apple") == std::vector<size_t>{1, 2, 3});
+    REQUIRE(Index.GetListOfDocumentsForWord("apple") == std::vector<size_t>{1, 2, 3});
+
+    REQUIRE(Index.GetResultsForWord("table").second == 0);
+    REQUIRE(Index.GetResultsForWord("table").first == std::map<size_t, size_t>{});
+    REQUIRE(Index.GetListOfDocumentsForWord("table") == std::vector<size_t>{});
 
     Index.RemoveDocument(1);
     // std::unordered_map<std::string, std::map<size_t, size_t>> example2
     // ={{"apple",{{2,2},{3,1}}},{"car",{{2,1},{3,1}}},{"cat",{{3,1}}}};
     REQUIRE(Index.GetResultsForWord("apple").second == 3);
     REQUIRE(Index.GetResultsForWord("apple").first == std::map<size_t, size_t>{{2, 2}, {3, 1}});
-    REQUIRE(Index.GetListOfDocementsForWord("apple") == std::vector<size_t>{2, 3});
+    REQUIRE(Index.GetListOfDocumentsForWord("apple") == std::vector<size_t>{2, 3});
 
     Index.RemoveDocument(2);
     Index.RemoveDocument(3);
     // std::unordered_map<std::string, std::map<size_t, size_t>> example4={};
     REQUIRE(Index.GetResultsForWord("apple").second == 0);
     REQUIRE(Index.GetResultsForWord("apple").first == std::map<size_t, size_t>{});
-    REQUIRE(Index.GetListOfDocementsForWord("apple") == std::vector<size_t>{});
+    REQUIRE(Index.GetListOfDocumentsForWord("apple") == std::vector<size_t>{});
 }
 
 TEST_CASE("DocumentBuilder::Build creates document with correct fields")

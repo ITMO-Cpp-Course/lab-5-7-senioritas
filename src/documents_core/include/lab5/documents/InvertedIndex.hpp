@@ -14,9 +14,9 @@ class InvertedIndex
 
     void RemoveDocument(size_t doc_id);
 
-    std::pair<std::map<size_t, size_t>, size_t> GetResultsForWord(std::string word);
+    std::pair<std::map<size_t, size_t>, size_t> GetResultsForWord(const std::string& word) const;
 
-    std::vector<size_t> GetListOfDocementsForWord(std::string word);
+    std::vector<size_t> GetListOfDocumentsForWord(const std::string& word) const;
 
   private:
     std::unordered_map<std::string, std::map<size_t, size_t>> index_;
