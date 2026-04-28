@@ -18,7 +18,7 @@ void InvertedIndex::AddDocument(size_t doc_id, const std::vector<std::string>& w
     }
     for (auto w : words_counter)
     {
-        if (!index_[w.first].at(doc_id))
+        if (!index_[w.first].count(doc_id))
         {
             index_[w.first][doc_id] = w.second;
         }
