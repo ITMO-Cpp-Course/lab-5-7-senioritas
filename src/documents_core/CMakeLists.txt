@@ -1,6 +1,7 @@
 add_library(documents_core STATIC
         src/DocumentBuilder.cpp
-        src/InvertedIndex.cpp
+        src/IndexStore.cpp
+        src/UpdateTransaction.cpp
 )
 
 target_link_libraries(documents_core PRIVATE project_warnings)

@@ -3,15 +3,16 @@
 #include <fcntl.h>
 #include <lab5/documents/Document.hpp>
 #include <lab5/documents/DocumentBuilder.hpp>
-#include <lab5/documents/InvertedIndex.hpp>
+#include <lab5/documents/IndexStore.hpp>
 #include <map>
 #include <string>
 #include <unordered_map>
 #include <vector>
 using namespace lab5::documents;
-TEST_CASE("Test InvertedIndex")
+TEST_CASE("Test IndexStore. In this test case we do not test commit, so we expect the error message that we should "
+          "confirm changes.")
 {
-    InvertedIndex Index;
+    IndexStore Index;
 
     size_t doc_id1 = 1;
     size_t doc_id2 = 2;
@@ -25,30 +26,42 @@ TEST_CASE("Test InvertedIndex")
     Index.AddDocument(doc_id2, words2);
     Index.AddDocument(doc_id3, words3);
 
+    REQUIRE(Index.AddDocument(doc_id1, words1).error() ==
+            "This document already exists but not confirmed. Do not forget to commit changes!");
+
     // std::unordered_map<std::string, std::map<size_t, size_t>> example
     // ={{"apple",{{1,2},{2,2},{3,1}}},{"pear",{{1,1}}},{"car",{{2,1},{3,1}}},{"cat",{{3,1}}}};
 
-    REQUIRE(Index.GetResultsForWord("apple").second == 5);
-    REQUIRE(Index.GetResultsForWord("apple").first == std::map<size_t, size_t>{{1, 2}, {2, 2}, {3, 1}});
-    REQUIRE(Index.GetListOfDocumentsForWord("apple") == std::vector<size_t>{1, 2, 3});
+    REQUIRE(
+        Index.GetResultsForWord("apple").error() ==
+        "This word does not exist among the confirmed changes. You can commit changes to see the usage of this word.");
+    REQUIRE(
+        Index.GetListOfDocumentsForWord("apple").error() ==
+        "This word does not exist among the confirmed changes. You can commit changes to see the usage of this word.");
 
-    REQUIRE(Index.GetResultsForWord("table").second == 0);
-    REQUIRE(Index.GetResultsForWord("table").first == std::map<size_t, size_t>{});
-    REQUIRE(Index.GetListOfDocumentsForWord("table") == std::vector<size_t>{});
+    REQUIRE(Index.GetResultsForWord("table").error() == "This word is not used.");
+    REQUIRE(Index.GetListOfDocumentsForWord("table").error() == "This word is not used.");
 
     Index.RemoveDocument(1);
     // std::unordered_map<std::string, std::map<size_t, size_t>> example2
     // ={{"apple",{{2,2},{3,1}}},{"car",{{2,1},{3,1}}},{"cat",{{3,1}}}};
-    REQUIRE(Index.GetResultsForWord("apple").second == 3);
-    REQUIRE(Index.GetResultsForWord("apple").first == std::map<size_t, size_t>{{2, 2}, {3, 1}});
-    REQUIRE(Index.GetListOfDocumentsForWord("apple") == std::vector<size_t>{2, 3});
+    REQUIRE(
+        Index.GetResultsForWord("apple").error() ==
+        "This word does not exist among the confirmed changes. You can commit changes to see the usage of this word.");
+    REQUIRE(
+        Index.GetListOfDocumentsForWord("apple").error() ==
+        "This word does not exist among the confirmed changes. You can commit changes to see the usage of this word.");
+
+    REQUIRE(Index.GetResultsForWord("table").error() == "This word is not used.");
+    REQUIRE(Index.GetListOfDocumentsForWord("table").error() == "This word is not used.");
 
     Index.RemoveDocument(2);
     Index.RemoveDocument(3);
+
+    REQUIRE(Index.RemoveDocument(1).error() == "This document does not exist!");
     // std::unordered_map<std::string, std::map<size_t, size_t>> example4={};
-    REQUIRE(Index.GetResultsForWord("apple").second == 0);
-    REQUIRE(Index.GetResultsForWord("apple").first == std::map<size_t, size_t>{});
-    REQUIRE(Index.GetListOfDocumentsForWord("apple") == std::vector<size_t>{});
+    REQUIRE(Index.GetResultsForWord("apple").error() == "This word is not used.");
+    REQUIRE(Index.GetListOfDocumentsForWord("apple").error() == "This word is not used.");
 }
 
 TEST_CASE("DocumentBuilder::Build creates document with correct fields")
