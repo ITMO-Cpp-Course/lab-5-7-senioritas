@@ -1,37 +1,56 @@
 #pragma once
-#include <cstddef>
-#include <expected>
-#include <map>
+
+#include "InvertedIndex.hpp"
+#include "Result.hpp"
+#include "UpdateTransaction.hpp"
 #include <set>
+#include <memory>
 #include <string>
-#include <unordered_map>
 #include <vector>
+#include <map>
 
-namespace lab5::documents
-{
-class IndexStore
-{
-  public:
-    std::expected<void, std::string> AddDocument(size_t doc_id, const std::vector<std::string>& words);
+namespace lab5::documents {
 
-    std::expected<void, std::string> RemoveDocument(size_t doc_id);
+//Класс IndexStore — владелец стабильного состояния индекса - данные никогда не находятся в процессе изменения.
+//В программе может быть много временных объектов или функций, которые обрабатывают текст.
+//Можно сказать, что это единственное место, где лежат стопроцентно верные данные.
 
-    std::expected<std::pair<std::map<size_t, size_t>, size_t>, std::string> GetResultsForWord(
-        const std::string& word) const;
+class IndexStore {
+public:
+    IndexStore() = default;
 
-    std::expected<std::vector<size_t>, std::string> GetListOfDocumentsForWord(const std::string& word) const;
+    // Запрещаем копирование хранилища, чтобы избежать дублирования данных
+    IndexStore(const IndexStore&) = delete;
+    IndexStore& operator=(const IndexStore&) = delete;
 
-    // временая переменная - текущее состояние транзакцакции, там находятся в том числе те последние изменения, которых
-    // нет в index_. Это самая актуальная версия index_, но еще не прошедшая commit(). Находится в public, чтобы
-    // UpdateTransaction мог проталкивать её с помощью commit()
-    std::unordered_map<std::string, std::map<size_t, size_t>> transaction;
+    //Выполняет поиск слова в подтвержденном индексе
+    //возвращает Result с данными (мапа и общее кол-во) или IndexError
+    Result<std::pair<std::map<size_t, size_t>, size_t>> GetResultsForWord(const std::string& word) const;
 
-    // перечислены id всех документов, которые добавлены для текущего состояния транзакции.
-    std::set<size_t> transaction_docid;
+    //Возвращает список ID документов для слова
+    Result<std::vector<size_t>> GetListOfDocumentsForWord(const std::string& word) const;
 
-    // перечислены id тех документов, которые находятся в index_.
+    //Создает и возвращает объект транзакции
+    //Result с уникальным указателем на транзакцию или ошибка, если транзакция уже активна.
+
+    Result<std::unique_ptr<UpdateTransaction>> BeginTransaction();
+
+private:
+    // Даем транзакции доступ к приватным методам Apply и SetTransactionActive
+    friend class UpdateTransaction;
+
+    //Атомарно обновляет индекс (вызывается только при Commit).
+    void Apply(InvertedIndex transaction, std::set<size_t> transaction_docid);
+
+    //Устанавливает флаг активности транзакции.
+    void SetTransactionActive(bool active) { transaction_active = active; }
+
+    // Основные данные (стабильная версия)
+    InvertedIndex index_;
     std::set<size_t> approved_transaction_docid;
 
-    std::unordered_map<std::string, std::map<size_t, size_t>> index_;
+    // Состояние системы
+    bool transaction_active = false;
 };
+
 } // namespace lab5::documents

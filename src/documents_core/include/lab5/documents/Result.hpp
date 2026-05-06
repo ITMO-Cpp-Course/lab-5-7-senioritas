@@ -1,15 +1,26 @@
 #pragma once
-#include <cstddef>
-#include <lab5/documents/Document.hpp>
-#include <lab5/documents/DocumentBuilder.hpp>
-#include <lab5/documents/IndexStore.hpp>
+#include <expected>
 #include <string>
-#include <unordered_map>
-#include <vector>
-namespace lab5::documents
-{
 
-struct Result
-{
+namespace lab5::documents {
+
+// Коды ошибок для классификации
+enum class ErrorCode {
+    Success = 0,
+    DocumentAlreadyExists,
+    DocumentNotFound,
+    TransactionAlreadyActive,
+    InternalError
 };
+
+// Структура ошибки, объединяющая код и текст
+struct IndexError {
+    ErrorCode code;
+    std::string message;
+};
+
+// Основной тип Result на базе std::expected
+template <typename T>
+using Result = std::expected<T, IndexError>;
+
 } // namespace lab5::documents

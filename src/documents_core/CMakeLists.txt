@@ -2,6 +2,8 @@ add_library(documents_core STATIC
         src/DocumentBuilder.cpp
         src/IndexStore.cpp
         src/UpdateTransaction.cpp
+        src/InvertedIndex.cpp
+        include/lab5/documents/InvertedIndex.hpp
 )
 
 target_link_libraries(documents_core PRIVATE project_warnings)
