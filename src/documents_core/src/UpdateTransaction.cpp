@@ -5,6 +5,7 @@ namespace lab5::documents
 UpdateTransaction::UpdateTransaction(IndexStore& store) : store_ref(store)
 {
     store_ref.transaction_active = true;
+    transaction = store_ref.index_;
     // конструктор сохраняет ссылку на хранилище
 }
 

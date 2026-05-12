@@ -36,8 +36,14 @@ TEST_CASE("Test IndexStore")
         auto transaction2 = *index.BeginTransaction();
         transaction2->AddDocument(doc_id2, words2);
         transaction2->AddDocument(doc_id3, words2);
+	REQUIRE(!index.BeginTransaction().has_value());
         transaction2->Commit();
     }
+    REQUIRE(*index.GetListOfDocumentsForWord("car") == std::vector<DocId>{doc_id2,doc_id3});
+    auto transaction2=*index.BeginTransaction();
+    transaction2->RemoveDocument(doc_id2);
+    transaction2->Commit();
+    REQUIRE(*index.GetListOfDocumentsForWord("car") == std::vector<DocId>{doc_id3});
 }
 
 TEST_CASE("DocumentBuilder::Build creates document with correct fields")
