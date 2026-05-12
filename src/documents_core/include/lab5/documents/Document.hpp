@@ -5,12 +5,12 @@
 #include <vector>
 namespace lab5::documents
 {
-using DocId = size_t; // беззнаковый тип, защищенный от отрицательных значений
-// плюс все контейнеры поддерживают сайз т
+using DocId = size_t;
+
 struct Document
 {
-    DocId id; // Уникальный номер. По нему InvertedIndex находит вхождения слов
+    DocId id;
     std::string name;
-    std::string content; // Тело документа (весь текст), который DocumentBuilder будет разбивать на слова.
+    std::string content;
 };
 } // namespace lab5::documents

@@ -5,7 +5,6 @@
 namespace lab5::documents
 {
 
-// Коды ошибок для классификации
 enum class ErrorCode
 {
     DocumentAlreadyExists,
@@ -14,7 +13,6 @@ enum class ErrorCode
     InternalError
 };
 
-// Структура ошибки, объединяющая код и текст
 struct IndexError
 {
     ErrorCode code;

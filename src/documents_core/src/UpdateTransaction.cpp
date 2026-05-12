@@ -6,12 +6,10 @@ UpdateTransaction::UpdateTransaction(IndexStore& store) : store_ref(store)
 {
     store_ref.transaction_active = true;
     transaction = store_ref.index_;
-    // конструктор сохраняет ссылку на хранилище
 }
 
 UpdateTransaction::~UpdateTransaction()
 {
-    // если коммита не было, разблокируем хранилище
     if (!is_committed)
     {
         store_ref.transaction_active = false;
@@ -20,33 +18,29 @@ UpdateTransaction::~UpdateTransaction()
 
 Result<void> UpdateTransaction::AddDocument(size_t doc_id, const std::vector<std::string>& words)
 {
-    // проверка, нельзя добавлять документы в уже закоммиченную транзакцию
     if (is_committed)
     {
         return std::unexpected(
             IndexError{ErrorCode::InternalError, "Cannot add document to already committed transaction"});
     }
 
-    // добавляем документ во временный индекс и во временный набор ID
     return transaction.AddDocument(doc_id, words);
 }
 
 Result<void> UpdateTransaction::RemoveDocument(size_t doc_id)
 {
-    // проверка, нельзя удалять документы из уже закоммиченной транзакции
     if (is_committed)
     {
         return std::unexpected(
             IndexError{ErrorCode::InternalError, "Cannot remove document from already committed transaction"});
     }
 
-    // удаляем документ из временного индекса и из временного набора ID
     return transaction.RemoveDocument(doc_id);
 }
 
 Result<void> UpdateTransaction::Commit()
 {
-    // роверка, нельзя коммитить дважды
+    // проверка, нельзя коммитить дважды
     if (is_committed)
     {
         return std::unexpected(IndexError{ErrorCode::InternalError, "Transaction already committed"});
@@ -55,7 +49,6 @@ Result<void> UpdateTransaction::Commit()
     // применяем накопленные изменения к основному хранилищу
     store_ref.Apply(std::move(transaction));
 
-    // разблокируем хранилище и помечаем транзакцию как закоммиченную
     store_ref.transaction_active = false;
     is_committed = true;
 
