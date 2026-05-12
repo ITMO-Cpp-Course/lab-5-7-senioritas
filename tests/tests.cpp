@@ -231,3 +231,87 @@ TEST_CASE("Integration: Build and Tokenize work together")
     REQUIRE(tokens[4] == "a");
     REQUIRE(tokens[5] == "test");
 }
+
+TEST_CASE("UpdateTransaction - успешное добавление документа", "[transaction]")
+{
+    IndexStore store;
+
+    auto txResult = store.BeginTransaction();
+    REQUIRE(txResult.has_value());
+    auto& tx = *txResult.value();
+
+    std::vector<std::string> words = {"hello", "world"};
+    auto addResult = tx.AddDocument(1, words);
+    REQUIRE(addResult.has_value());
+
+    auto commitResult = tx.Commit();
+    REQUIRE(commitResult.has_value());
+
+    auto searchResult = store.GetResultsForWord("hello");
+    REQUIRE(searchResult.has_value());
+    REQUIRE(searchResult->first.size() == 1);
+    REQUIRE(searchResult->first[1] == 1);
+}
+
+TEST_CASE("UpdateTransaction - автоматический откат при разрушении", "[transaction]")
+{
+    IndexStore store;
+
+    {
+        auto txResult = store.BeginTransaction();
+        REQUIRE(txResult.has_value());
+        auto& tx = *txResult.value();
+
+        auto addResult = tx.AddDocument(1, {"test"});
+        REQUIRE(addResult.has_value());
+        // нет Commit() - откат при разрушении
+    }
+
+    auto searchResult = store.GetResultsForWord("test");
+    REQUIRE(searchResult.has_value());
+    REQUIRE(searchResult->first.empty());
+}
+
+TEST_CASE("UpdateTransaction - ошибка при двойном Commit", "[transaction]")
+{
+    IndexStore store;
+
+    auto txResult = store.BeginTransaction();
+    REQUIRE(txResult.has_value());
+    auto& tx = *txResult.value();
+
+    auto add = tx.AddDocument(1, {"x"});
+    REQUIRE(add.has_value());
+
+    auto commit1 = tx.Commit();
+    REQUIRE(commit1.has_value());
+
+    auto commit2 = tx.Commit();
+    REQUIRE_FALSE(commit2.has_value());
+    REQUIRE(commit2.error().code == ErrorCode::InternalError);
+}
+
+TEST_CASE("UpdateTransaction - удаление документа через транзакцию", "[transaction]")
+{
+    IndexStore store;
+
+    { // обавляем документ
+        auto txResult = store.BeginTransaction();
+        REQUIRE(txResult.has_value());
+        auto& tx = *txResult.value();
+        REQUIRE(tx.AddDocument(42, {"remove_me"}).has_value());
+        REQUIRE(tx.Commit().has_value());
+    }
+    { // удаляем через транзакцию
+        auto txResult = store.BeginTransaction();
+        REQUIRE(txResult.has_value());
+        auto& tx = *txResult.value();
+        REQUIRE(tx.RemoveDocument(42).has_value());
+        REQUIRE(tx.Commit().has_value());
+    }
+    { // проверяем
+        auto result = store.GetResultsForWord("remove_me");
+        REQUIRE(result.has_value());
+        REQUIRE(result->first.empty());
+    }
+}
