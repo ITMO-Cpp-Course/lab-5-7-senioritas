@@ -21,9 +21,9 @@ Result<std::unique_ptr<UpdateTransaction>> IndexStore::BeginTransaction()
 {
     if (transaction_active)
     {
-        return std::unexpected(IndexError{ErrorCode::InternalError, "Transaction already active"});
+        return std::unexpected(IndexError{ErrorCode::TransactionAlreadyActive, "Transaction already active"});
     }
-    
+
     return {std::make_unique<UpdateTransaction>(*this)};
 }
 

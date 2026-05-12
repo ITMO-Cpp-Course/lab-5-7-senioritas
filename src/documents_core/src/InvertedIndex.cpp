@@ -18,7 +18,7 @@ Result<void> InvertedIndex::AddDocument(DocId doc_id, const std::vector<std::str
         if (idx_map.count(doc_id))
         {
             return std::unexpected{IndexError{ErrorCode::DocumentAlreadyExists,
-                                              "There is no document with index " + std::to_string(doc_id)}};
+                                              "The document " + std::to_string(doc_id) + " already exists."}};
         }
     }
     std::map<std::string, size_t> words_counter;
@@ -51,7 +51,7 @@ Result<void> InvertedIndex::RemoveDocument(DocId doc_id)
             ++it;
         }
     }
-    if (deletions != 0)
+    if (deletions == 0)
     {
         return std::unexpected{
             IndexError{ErrorCode::DocumentNotFound, "There is no document with index " + std::to_string(doc_id)}};

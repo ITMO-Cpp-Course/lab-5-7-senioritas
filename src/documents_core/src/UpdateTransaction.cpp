@@ -44,7 +44,7 @@ Result<void> UpdateTransaction::Commit()
     // проверка, нельзя коммитить дважды
     if (is_committed)
     {
-        return std::unexpected(IndexError{ErrorCode::InternalError, "Transaction already committed"});
+        return std::unexpected(IndexError{ErrorCode::TransactionAlreadyCommitted, "Transaction already committed"});
     }
 
     // применяем накопленные изменения к основному хранилищу
