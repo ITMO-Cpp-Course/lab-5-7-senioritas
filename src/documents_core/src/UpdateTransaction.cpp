@@ -35,7 +35,8 @@ Result<void> UpdateTransaction::RemoveDocument(size_t doc_id)
             IndexError{ErrorCode::InternalError, "Cannot remove document from already committed transaction"});
     }
 
-    return transaction.RemoveDocument(doc_id);
+    transaction.RemoveDocument(doc_id);
+    return {};
 }
 
 Result<void> UpdateTransaction::Commit()

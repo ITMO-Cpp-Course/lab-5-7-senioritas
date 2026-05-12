@@ -295,21 +295,16 @@ TEST_CASE("UpdateTransaction - удаление документа через т
 {
     IndexStore store;
 
-    { // обавляем документ
+    {
+
         auto txResult = store.BeginTransaction();
         REQUIRE(txResult.has_value());
-        auto& tx = *txResult.value();
-        REQUIRE(tx.AddDocument(42, {"remove_me"}).has_value());
-        REQUIRE(tx.Commit().has_value());
+        auto tx = std::move(txResult.value());
+        REQUIRE(tx->AddDocument(42, {"remove_me"}).has_value());
+        REQUIRE(tx->RemoveDocument(42).has_value());
+        REQUIRE(tx->Commit().has_value());
     }
-    { // удаляем через транзакцию
-        auto txResult = store.BeginTransaction();
-        REQUIRE(txResult.has_value());
-        auto& tx = *txResult.value();
-        REQUIRE(tx.RemoveDocument(42).has_value());
-        REQUIRE(tx.Commit().has_value());
-    }
-    { // проверяем
+    {
         auto result = store.GetResultsForWord("remove_me");
         REQUIRE(result.has_value());
         REQUIRE(result->first.empty());
