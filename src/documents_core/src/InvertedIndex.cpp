@@ -10,23 +10,37 @@
 namespace lab5::documents
 {
 
-void InvertedIndex::AddDocument(size_t doc_id, const std::vector<std::string>& words)
+Result<void> InvertedIndex::AddDocument(DocId doc_id, const std::vector<std::string>& words)
 {
-    RemoveDocument(doc_id);
+
+    for (auto& [word, idx_map] : index_)
+    {
+        if (idx_map.count(doc_id))
+        {
+            return std::unexpected{IndexError{ErrorCode::DocumentAlreadyExists,
+                                              "There is no document with index " + std::to_string(doc_id)}};
+        }
+    }
     std::map<std::string, size_t> words_counter;
-    for (auto w : words)
+    for (const auto& w : words)
     {
         words_counter[w] += 1;
     }
-    for (auto w : words_counter)
+    for (const auto& [word, cnt] : words_counter)
     {
-        index_[w.first][doc_id] = w.second;
+        index_[word][doc_id] = cnt;
     }
+    return {};
 }
-void InvertedIndex::RemoveDocument(size_t doc_id)
+Result<void> InvertedIndex::RemoveDocument(DocId doc_id)
 {
+    int deletions = 0;
     for (auto it = index_.begin(); it != index_.end();)
     {
+        if (it->second.count(doc_id))
+        {
+            ++deletions;
+        }
         it->second.erase(doc_id);
         if (it->second.empty())
         {
@@ -37,35 +51,41 @@ void InvertedIndex::RemoveDocument(size_t doc_id)
             ++it;
         }
     }
+    if (deletions != 0)
+    {
+        return std::unexpected{
+            IndexError{ErrorCode::DocumentNotFound, "There is no document with index " + std::to_string(doc_id)}};
+    }
+    return {};
 }
-std::pair<std::map<size_t, size_t>, size_t> InvertedIndex::GetResultsForWord(const std::string& word) const
+Result<std::pair<std::map<DocId, size_t>, size_t>> InvertedIndex::GetResultsForWord(const std::string& word) const
 {
     size_t cnt = 0;
     auto it = index_.find(word);
     if (it == index_.end())
     {
-        return {std::map<size_t, size_t>{}, 0};
+        return {std::pair{std::map<DocId, size_t>{}, 0}};
     }
     for (auto [id, c] : it->second)
     {
         cnt += c;
     }
-    return {it->second, cnt};
+    return {std::pair{it->second, cnt}};
 }
 
-std::vector<size_t> InvertedIndex::GetListOfDocumentsForWord(const std::string& word) const
+Result<std::vector<DocId>> InvertedIndex::GetListOfDocumentsForWord(const std::string& word) const
 {
-    std::vector<size_t> v;
+    std::vector<DocId> v;
     auto it = index_.find(word);
     if (it == index_.end())
     {
-        return std::vector<size_t>{};
+        return {v};
     }
     for (auto [id, c] : it->second)
     {
         v.push_back(id);
     }
-    return v;
+    return {v};
 }
 
 }; // namespace lab5::documents

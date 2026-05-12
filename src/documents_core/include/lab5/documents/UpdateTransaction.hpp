@@ -41,9 +41,6 @@ class UpdateTransaction
     // Временная копия индекса (её transaction)
     InvertedIndex transaction;
 
-    // Временный набор ID документов (её transaction_docid)
-    std::set<size_t> transaction_docid;
-
     bool is_committed = false; // Флаг, был ли вызван Commit
 };
 

@@ -1,5 +1,7 @@
 #pragma once
 #include <cstddef>
+#include <lab5/documents/Document.hpp>
+#include <lab5/documents/Result.hpp>
 #include <map>
 #include <string>
 #include <unordered_map>
@@ -9,16 +11,16 @@ namespace lab5::documents
 {
 class InvertedIndex
 {
-public:
-    void AddDocument(size_t doc_id, const std::vector<std::string>& words);
+  public:
+    Result<void> AddDocument(DocId doc_id, const std::vector<std::string>& words);
 
-    void RemoveDocument(size_t doc_id);
+    Result<void> RemoveDocument(size_t doc_id);
 
-    std::pair<std::map<size_t, size_t>, size_t> GetResultsForWord(std::string word);
+    Result<std::pair<std::map<DocId, size_t>, size_t>> GetResultsForWord(const std::string& word) const;
 
-    std::vector<size_t> GetListOfDocementsForWord(std::string word);
+    Result<std::vector<DocId>> GetListOfDocumentsForWord(const std::string& word) const;
 
-private:
+  private:
     std::unordered_map<std::string, std::map<size_t, size_t>> index_;
 };
 } // namespace lab5::documents

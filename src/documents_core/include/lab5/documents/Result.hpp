@@ -2,11 +2,12 @@
 #include <expected>
 #include <string>
 
-namespace lab5::documents {
+namespace lab5::documents
+{
 
 // Коды ошибок для классификации
-enum class ErrorCode {
-    Success = 0,
+enum class ErrorCode
+{
     DocumentAlreadyExists,
     DocumentNotFound,
     TransactionAlreadyActive,
@@ -14,13 +15,13 @@ enum class ErrorCode {
 };
 
 // Структура ошибки, объединяющая код и текст
-struct IndexError {
+struct IndexError
+{
     ErrorCode code;
     std::string message;
 };
 
 // Основной тип Result на базе std::expected
-template <typename T>
-using Result = std::expected<T, IndexError>;
+template <typename T> using Result = std::expected<T, IndexError>;
 
 } // namespace lab5::documents

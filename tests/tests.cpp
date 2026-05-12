@@ -4,64 +4,40 @@
 #include <lab5/documents/Document.hpp>
 #include <lab5/documents/DocumentBuilder.hpp>
 #include <lab5/documents/IndexStore.hpp>
+#include <lab5/documents/UpdateTransaction.hpp>
 #include <map>
 #include <string>
 #include <unordered_map>
 #include <vector>
 using namespace lab5::documents;
-TEST_CASE("Test IndexStore. In this test case we do not test commit, so we expect the error message that we should "
-          "confirm changes.")
+TEST_CASE("Test IndexStore")
 {
-    IndexStore Index;
+    IndexStore index;
 
-    size_t doc_id1 = 1;
-    size_t doc_id2 = 2;
-    size_t doc_id3 = 3;
+    DocId doc_id1 = 1;
+    DocId doc_id2 = 2;
+    DocId doc_id3 = 3;
 
     std::vector<std::string> words1{"apple", "apple", "pear"};
     std::vector<std::string> words2{"apple", "apple", "car"};
     std::vector<std::string> words3{"apple", "car", "cat"};
 
-    Index.AddDocument(doc_id1, words1);
-    Index.AddDocument(doc_id2, words2);
-    Index.AddDocument(doc_id3, words3);
-
-    REQUIRE(Index.AddDocument(doc_id1, words1).error() ==
-            "This document already exists but not confirmed. Do not forget to commit changes!");
-
-    // std::unordered_map<std::string, std::map<size_t, size_t>> example
-    // ={{"apple",{{1,2},{2,2},{3,1}}},{"pear",{{1,1}}},{"car",{{2,1},{3,1}}},{"cat",{{3,1}}}};
-
-    REQUIRE(
-        Index.GetResultsForWord("apple").error() ==
-        "This word does not exist among the confirmed changes. You can commit changes to see the usage of this word.");
-    REQUIRE(
-        Index.GetListOfDocumentsForWord("apple").error() ==
-        "This word does not exist among the confirmed changes. You can commit changes to see the usage of this word.");
-
-    REQUIRE(Index.GetResultsForWord("table").error() == "This word is not used.");
-    REQUIRE(Index.GetListOfDocumentsForWord("table").error() == "This word is not used.");
-
-    Index.RemoveDocument(1);
-    // std::unordered_map<std::string, std::map<size_t, size_t>> example2
-    // ={{"apple",{{2,2},{3,1}}},{"car",{{2,1},{3,1}}},{"cat",{{3,1}}}};
-    REQUIRE(
-        Index.GetResultsForWord("apple").error() ==
-        "This word does not exist among the confirmed changes. You can commit changes to see the usage of this word.");
-    REQUIRE(
-        Index.GetListOfDocumentsForWord("apple").error() ==
-        "This word does not exist among the confirmed changes. You can commit changes to see the usage of this word.");
-
-    REQUIRE(Index.GetResultsForWord("table").error() == "This word is not used.");
-    REQUIRE(Index.GetListOfDocumentsForWord("table").error() == "This word is not used.");
-
-    Index.RemoveDocument(2);
-    Index.RemoveDocument(3);
-
-    REQUIRE(Index.RemoveDocument(1).error() == "This document does not exist!");
-    // std::unordered_map<std::string, std::map<size_t, size_t>> example4={};
-    REQUIRE(Index.GetResultsForWord("apple").error() == "This word is not used.");
-    REQUIRE(Index.GetListOfDocumentsForWord("apple").error() == "This word is not used.");
+    auto transaction1 = *index.BeginTransaction();
+    transaction1->AddDocument(doc_id1, words1);
+    REQUIRE(!index.GetListOfDocumentsForWord("apple").has_value());
+    transaction1->Commit();
+    REQUIRE(*index.GetListOfDocumentsForWord("apple") == std::vector<DocId>{doc_id1});
+    {
+        auto transaction2 = *index.BeginTransaction();
+        transaction2->AddDocument(doc_id2, words2);
+    }
+    REQUIRE(*index.GetListOfDocumentsForWord("car") == std::vector<DocId>{});
+    {
+        auto transaction2 = *index.BeginTransaction();
+        transaction2->AddDocument(doc_id2, words2);
+        transaction2->AddDocument(doc_id3, words2);
+        transaction2->Commit();
+    }
 }
 
 TEST_CASE("DocumentBuilder::Build creates document with correct fields")

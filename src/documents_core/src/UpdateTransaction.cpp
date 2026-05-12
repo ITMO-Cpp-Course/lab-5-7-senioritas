@@ -4,8 +4,8 @@ namespace lab5::documents
 {
 UpdateTransaction::UpdateTransaction(IndexStore& store) : store_ref(store)
 {
+    store_ref.transaction_active = true;
     // конструктор сохраняет ссылку на хранилище
-    // transaction и transaction_docid инициализируются по умолчанию (пустые)
 }
 
 UpdateTransaction::~UpdateTransaction()
@@ -13,7 +13,7 @@ UpdateTransaction::~UpdateTransaction()
     // если коммита не было, разблокируем хранилище
     if (!is_committed)
     {
-        store_ref.SetTransactionActive(false);
+        store_ref.transaction_active = false;
     }
 }
 
@@ -27,10 +27,7 @@ Result<void> UpdateTransaction::AddDocument(size_t doc_id, const std::vector<std
     }
 
     // добавляем документ во временный индекс и во временный набор ID
-    transaction.AddDocument(doc_id, words);
-    transaction_docid.insert(doc_id);
-
-    return {};
+    return transaction.AddDocument(doc_id, words);
 }
 
 Result<void> UpdateTransaction::RemoveDocument(size_t doc_id)
@@ -43,10 +40,7 @@ Result<void> UpdateTransaction::RemoveDocument(size_t doc_id)
     }
 
     // удаляем документ из временного индекса и из временного набора ID
-    transaction.RemoveDocument(doc_id);
-    transaction_docid.erase(doc_id);
-
-    return {};
+    return transaction.RemoveDocument(doc_id);
 }
 
 Result<void> UpdateTransaction::Commit()
@@ -58,10 +52,10 @@ Result<void> UpdateTransaction::Commit()
     }
 
     // применяем накопленные изменения к основному хранилищу
-    store_ref.Apply(std::move(transaction), std::move(transaction_docid));
+    store_ref.Apply(std::move(transaction));
 
     // разблокируем хранилище и помечаем транзакцию как закоммиченную
-    store_ref.SetTransactionActive(false);
+    store_ref.transaction_active = false;
     is_committed = true;
 
     return {};
