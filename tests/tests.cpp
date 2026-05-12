@@ -288,7 +288,7 @@ TEST_CASE("UpdateTransaction - ошибка при двойном Commit", "[tra
 
     auto commit2 = tx.Commit();
     REQUIRE_FALSE(commit2.has_value());
-    REQUIRE(commit2.error().code == ErrorCode::InternalError);
+    REQUIRE(commit2.error().code == ErrorCode::TransactionAlreadyCommitted);
 }
 
 TEST_CASE("UpdateTransaction - удаление документа через транзакцию", "[transaction]")
