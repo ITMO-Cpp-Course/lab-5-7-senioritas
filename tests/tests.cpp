@@ -310,3 +310,18 @@ TEST_CASE("UpdateTransaction - удаление документа через т
         REQUIRE(result->first.empty());
     }
 }
+TEST_CASE("Транзакция с ошибкой", "[transaction]")
+{
+    IndexStore store;
+
+    auto txResult = store.BeginTransaction();
+    REQUIRE(txResult.has_value());
+    auto& tx = *txResult.value();
+
+    REQUIRE(tx.AddDocument(1, {"hello"}).has_value());
+    REQUIRE(tx.Commit().has_value());
+
+    auto result = tx.AddDocument(2, {"world"});
+
+    REQUIRE_FALSE(result.has_value());
+}

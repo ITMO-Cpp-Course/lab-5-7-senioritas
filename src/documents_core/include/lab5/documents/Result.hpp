@@ -10,7 +10,9 @@ enum class ErrorCode
     DocumentAlreadyExists,
     DocumentNotFound,
     TransactionAlreadyActive,
-    InternalError
+    InternalError,
+    TransactionAlreadyCommitted,
+    InvalidTransactionState
 };
 
 struct IndexError

@@ -31,7 +31,7 @@ Result<std::pair<std::map<DocId, size_t>, size_t>> IndexStore::GetResultsForWord
 {
     if (transaction_active)
     {
-        return std::unexpected{IndexError{ErrorCode::InternalError,
+        return std::unexpected{IndexError{ErrorCode::InvalidTransactionState,
                                           "Impossible to get correct result for word while transaction is active"}};
     }
     return index_.GetResultsForWord(word);
@@ -42,7 +42,7 @@ Result<std::vector<size_t>> IndexStore::GetListOfDocumentsForWord(const std::str
     if (transaction_active)
     {
         return std::unexpected{
-            IndexError{ErrorCode::InternalError,
+            IndexError{ErrorCode::InvalidTransactionState,
                        "Impossible to get correct list of documents for word while transaction is active"}};
     }
     return index_.GetListOfDocumentsForWord(word);
