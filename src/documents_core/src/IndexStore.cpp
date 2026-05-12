@@ -1,6 +1,4 @@
-#include <cstddef>
 #include <lab5/documents/Document.hpp>
-#include <lab5/documents/DocumentBuilder.hpp>
 #include <lab5/documents/IndexStore.hpp>
 #include <lab5/documents/InvertedIndex.hpp>
 #include <lab5/documents/Result.hpp>
